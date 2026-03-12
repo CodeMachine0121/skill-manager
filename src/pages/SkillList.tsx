@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { useAppContext } from "../infrastructure/context";
 import { Toast } from "../components/Toast";
+import { SkillIcon } from "../components/SkillIcon";
 
 export function SkillList() {
   const { manageSkill } = useAppContext();
@@ -76,13 +77,7 @@ export function SkillList() {
         <div className="skill-grid">
           {skillNames.map((name) => (
             <Link key={name} to={`/detail/${name}`} className="skill-card">
-              <div className="skill-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
+              <SkillIcon name={name} />
               <span className="skill-card-name">{name}</span>
               <span className="skill-card-arrow">→</span>
             </Link>

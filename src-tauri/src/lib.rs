@@ -39,7 +39,7 @@ try {
   client = new CopilotClient();
   session = await client.createSession({
     onPermissionRequest: approveAll,
-    model: "claude-sonnet-4",
+    model: "gpt-4.1",
     systemMessage: { mode: "replace", content: input.systemPrompt },
   });
   const response = await session.sendAndWait({ prompt: input.prompt }, 120000);

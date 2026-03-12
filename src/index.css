@@ -361,16 +361,15 @@ a:hover { color: var(--accent-purple); }
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.skill-card-icon {
-  width: 40px;
-  height: 40px;
+.skill-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: var(--radius-sm);
-  color: var(--accent-blue);
   flex-shrink: 0;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  line-height: 1;
+  user-select: none;
 }
 
 .skill-card-name {
