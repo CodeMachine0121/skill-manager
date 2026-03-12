@@ -1,8 +1,36 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import ReactDiffViewer, { DiffMethod } from "react-diff-viewer-continued";
 import { useAppContext } from "../infrastructure/context";
 import { Toast } from "../components/Toast";
 import { PixelCat } from "../components/PixelCat";
+
+const diffStyles = {
+  variables: {
+    dark: {
+      diffViewerBackground: "#0F172A",
+      gutterBackground: "#1E293B",
+      addedBackground: "rgba(16, 185, 129, 0.12)",
+      addedGutterBackground: "rgba(16, 185, 129, 0.2)",
+      removedBackground: "rgba(239, 68, 68, 0.12)",
+      removedGutterBackground: "rgba(239, 68, 68, 0.2)",
+      wordAddedBackground: "rgba(16, 185, 129, 0.3)",
+      wordRemovedBackground: "rgba(239, 68, 68, 0.3)",
+      addedGutterColor: "#34D399",
+      removedGutterColor: "#F87171",
+      gutterColor: "#64748B",
+      codeFoldGutterBackground: "#1E293B",
+      codeFoldBackground: "#1E293B",
+      emptyLineBackground: "#0F172A",
+      diffViewerTitleBackground: "#1E293B",
+      diffViewerTitleColor: "#E2E8F0",
+      diffViewerTitleBorderColor: "#334155",
+    },
+  },
+  line: { padding: "4px 10px", fontSize: "0.85rem" },
+  gutter: { padding: "0 10px", minWidth: "40px", fontSize: "0.8rem" },
+  contentText: { fontFamily: "'JetBrains Mono', 'Fira Code', monospace", lineHeight: "1.6" },
+} as const;
 
 export function SkillDetail() {
   const { name } = useParams<{ name: string }>();
@@ -157,24 +185,16 @@ export function SkillDetail() {
             Changes Preview
           </h3>
           <div className="diff-viewer">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-              <div style={{ padding: "1rem", borderRight: "1px solid var(--border-subtle)" }}>
-                <div style={{ fontSize: "0.8rem", color: "var(--accent-red)", marginBottom: "0.5rem", fontWeight: 600 }}>
-                  Original
-                </div>
-                <pre className="code-block" style={{ border: "none", margin: 0 }}>
-                  {originalContent}
-                </pre>
-              </div>
-              <div style={{ padding: "1rem" }}>
-                <div style={{ fontSize: "0.8rem", color: "var(--accent-green)", marginBottom: "0.5rem", fontWeight: 600 }}>
-                  Modified
-                </div>
-                <pre className="code-block" style={{ border: "none", margin: 0 }}>
-                  {editContent}
-                </pre>
-              </div>
-            </div>
+            <ReactDiffViewer
+              oldValue={originalContent}
+              newValue={editContent}
+              splitView={true}
+              useDarkTheme={true}
+              compareMethod={DiffMethod.WORDS}
+              styles={diffStyles}
+              leftTitle="Original"
+              rightTitle="Modified"
+            />
           </div>
           <div className="diff-actions">
             <button className="btn btn-ghost" onClick={rejectDiff}>Reject</button>

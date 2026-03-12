@@ -53,7 +53,7 @@ export function Layout() {
       </main>
 
       <footer className="footer">
-        <p>© 2026 Skill Manager — Built with Tauri + React</p>
+        <p>© 2026 Skill Manager — Built with Tauri by CodingAfternoon</p>
       </footer>
     </>
   );
