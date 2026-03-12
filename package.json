@@ -1,5 +1,5 @@
 {
-  "name": "skill-manager-tauri",
+  "name": "skill-manager",
   "type": "module",
   "private": true,
   "scripts": {
