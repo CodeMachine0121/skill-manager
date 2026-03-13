@@ -16,7 +16,14 @@ Built with Tauri 2 + React + Rust.
 
 - [Bun](https://bun.sh) 1.3+
 - [Rust](https://rustup.rs/) 1.77.2+
+- [GitHub CLI (`gh`)](https://cli.github.com/) — 登入後才能使用 AI 功能
 - GitHub Copilot access (for AI features)
+
+> **⚠️ 重要：** 使用前請先透過 GitHub CLI 登入，AI 功能需要透過 `gh` 驗證身份：
+>
+> ```bash
+> gh auth login
+> ```
 
 ## Quick Start
 
