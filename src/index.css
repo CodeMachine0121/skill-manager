@@ -601,12 +601,120 @@ a:hover { color: var(--accent-purple); }
   50.01%, 100% { opacity: 1; }
 }
 
+/* ===== History Timeline ===== */
+.history-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.history-timeline {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.timeline-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.timeline-header h3 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.timeline-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: background var(--transition);
+}
+
+.timeline-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.timeline-item.active {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--accent-blue);
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-subtle);
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.timeline-item.active .timeline-dot {
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.timeline-time {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.timeline-preview {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.25rem;
+}
+
+.history-detail {
+  min-width: 0;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .navbar { top: 0.5rem; left: 0.5rem; right: 0.5rem; }
   .hero-title { font-size: 2.4rem; }
   .page-header { flex-direction: column; align-items: flex-start; }
   .skill-grid { grid-template-columns: 1fr; }
+  .history-layout { grid-template-columns: 1fr; }
+  .timeline-list { max-height: 300px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
