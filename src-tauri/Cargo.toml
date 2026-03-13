@@ -27,3 +27,4 @@ tauri-plugin-shell = "2"
 tokio = { version = "1", features = ["process", "io-util"] }
 dirs = "6"
 regex = "1"
+chrono = "0.4"

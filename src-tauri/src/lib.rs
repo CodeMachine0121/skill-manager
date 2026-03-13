@@ -2,10 +2,16 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Stdio;
 use tokio::io::AsyncWriteExt;
+use chrono::{Utc, NaiveDateTime, Duration};
 
 fn skills_base_path() -> PathBuf {
     let home = dirs::home_dir().expect("Cannot determine home directory");
     home.join(".claude").join("skills")
+}
+
+fn history_base_path() -> PathBuf {
+    let home = dirs::home_dir().expect("Cannot determine home directory");
+    home.join(".skill-manager").join("history")
 }
 
 const GENERATE_SYSTEM_PROMPT: &str = r#"You are an expert at creating Claude Code skill files (SKILL.md).
@@ -155,6 +161,13 @@ fn skill_exists(name: String) -> Result<bool, String> {
 
 #[tauri::command]
 fn save_skill(name: String, content: String) -> Result<(), String> {
+    let skill_file = skills_base_path().join(&name).join("SKILL.md");
+    if skill_file.is_file() {
+        if let Ok(old_content) = fs::read_to_string(&skill_file) {
+            let _ = save_snapshot_impl(&name, &old_content);
+        }
+    }
+
     let dir = skills_base_path().join(&name);
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     fs::write(dir.join("SKILL.md"), &content).map_err(|e| e.to_string())?;
@@ -202,6 +215,68 @@ fn list_skills() -> Result<Vec<String>, String> {
     Ok(results)
 }
 
+fn save_snapshot_impl(name: &str, content: &str) -> Result<(), String> {
+    let dir = history_base_path().join(name);
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let timestamp = Utc::now().format("%Y-%m-%dT%H-%M-%S").to_string();
+    fs::write(dir.join(format!("{}.md", timestamp)), content).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn save_skill_snapshot(name: String, content: String) -> Result<(), String> {
+    save_snapshot_impl(&name, &content)
+}
+
+#[tauri::command]
+fn list_skill_snapshots(name: String) -> Result<Vec<String>, String> {
+    let dir = history_base_path().join(&name);
+    if !dir.is_dir() {
+        return Ok(vec![]);
+    }
+
+    // Cleanup: remove snapshots older than 7 days
+    let cutoff = Utc::now() - Duration::days(7);
+    if let Ok(entries) = fs::read_dir(&dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) == Some("md") {
+                if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+                    if let Ok(dt) = NaiveDateTime::parse_from_str(stem, "%Y-%m-%dT%H-%M-%S") {
+                        if dt < cutoff.naive_utc() {
+                            let _ = fs::remove_file(&path);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // List remaining snapshots
+    let entries = fs::read_dir(&dir).map_err(|e| e.to_string())?;
+    let mut timestamps: Vec<String> = entries
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) == Some("md") {
+                path.file_stem().and_then(|s| s.to_str().map(|s| s.to_string()))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    timestamps.sort();
+    timestamps.reverse();
+    Ok(timestamps)
+}
+
+#[tauri::command]
+fn read_skill_snapshot(name: String, timestamp: String) -> Result<String, String> {
+    let path = history_base_path().join(&name).join(format!("{}.md", timestamp));
+    fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 fn delete_skill(name: String) -> Result<(), String> {
     let path = skills_base_path().join(&name);
@@ -220,6 +295,9 @@ pub fn run() {
             delete_skill,
             generate_skill_content,
             refine_skill_content,
+            save_skill_snapshot,
+            list_skill_snapshots,
+            read_skill_snapshot,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
