@@ -1,6 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Layout } from "./components/Layout";
-import { Home, SkillList, CreateSkill, GenerateSkill, SkillDetail, SkillHistory } from "./pages";
+import {
+  Home,
+  SkillList,
+  CreateSkill,
+  GenerateSkill,
+  SkillDetail,
+  SkillHistory,
+  SkillAnalytics,
+  SkillAnalyticsDetail,
+} from "./pages";
 import { AppContext, useCases } from "./infrastructure/context";
 
 function App() {
@@ -13,6 +22,8 @@ function App() {
             <Route path="skills" element={<SkillList />} />
             <Route path="create" element={<CreateSkill />} />
             <Route path="generate" element={<GenerateSkill />} />
+            <Route path="analytics" element={<SkillAnalytics />} />
+            <Route path="analytics/:name" element={<SkillAnalyticsDetail />} />
             <Route path="detail/:name" element={<SkillDetail />} />
             <Route path="history/:name" element={<SkillHistory />} />
           </Route>

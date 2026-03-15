@@ -3,6 +3,7 @@ import { InstallSkillUseCase } from "../application/install-skill";
 import { GenerateSkillUseCase } from "../application/generate-skill";
 import { ManageSkillUseCase } from "../application/manage-skill";
 import { ManageHistoryUseCase } from "../application/manage-history";
+import { AnalyzeSkillsUseCase } from "../application/skill-analytics";
 import { TauriSkillRepository } from "./tauri-skill-repository";
 import { TauriSkillHistoryRepository } from "./tauri-skill-history-repository";
 import { CopilotSkillGenerator } from "./copilot-skill-generator";
@@ -16,6 +17,7 @@ export const useCases = {
   generateSkill: new GenerateSkillUseCase(generator),
   manageSkill: new ManageSkillUseCase(repository),
   manageHistory: new ManageHistoryUseCase(historyRepository, repository),
+  analyzeSkills: new AnalyzeSkillsUseCase(repository, historyRepository),
 } as const;
 
 interface AppContextType {
@@ -23,6 +25,7 @@ interface AppContextType {
   generateSkill: GenerateSkillUseCase;
   manageSkill: ManageSkillUseCase;
   manageHistory: ManageHistoryUseCase;
+  analyzeSkills: AnalyzeSkillsUseCase;
 }
 
 export const AppContext = createContext<AppContextType>(useCases);

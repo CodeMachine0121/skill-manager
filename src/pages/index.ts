@@ -4,3 +4,5 @@ export { CreateSkill } from "./CreateSkill";
 export { GenerateSkill } from "./GenerateSkill";
 export { SkillDetail } from "./SkillDetail";
 export { SkillHistory } from "./SkillHistory";
+export { SkillAnalytics } from "./SkillAnalytics";
+export { SkillAnalyticsDetail } from "./SkillAnalyticsDetail";
