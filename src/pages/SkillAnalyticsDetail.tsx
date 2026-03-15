@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import ReactDiffViewer, { DiffMethod } from "react-diff-viewer-continued";
 import { PixelCat } from "../components/PixelCat";
@@ -8,6 +8,7 @@ import { SkillAnalyticsMissingSkillError } from "../application/skill-analytics"
 import { useAppContext } from "../infrastructure/context";
 
 const PERIOD_OPTIONS = [7, 30, 90, 365] as const;
+const DESCRIPTION_PREVIEW_LENGTH = 180;
 
 const diffStyles = {
   variables: {
@@ -31,23 +32,46 @@ const diffStyles = {
       diffViewerTitleBorderColor: "#334155",
     },
   },
+  diffContainer: {
+    width: "100%",
+    minWidth: "max(100%, 64rem)",
+    tableLayout: "auto",
+  },
+  stickyHeader: {
+    position: "static",
+    top: "auto",
+    zIndex: "auto",
+  },
   line: { padding: "4px 10px", fontSize: "0.85rem" },
   gutter: { padding: "0 10px", minWidth: "40px", fontSize: "0.8rem" },
-  contentText: { fontFamily: "'JetBrains Mono', 'Fira Code', monospace", lineHeight: "1.6" },
+  contentText: {
+    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+    lineHeight: "1.6",
+    whiteSpace: "pre-wrap",
+    overflowWrap: "normal",
+    wordBreak: "normal",
+  },
 } as const;
 
 export function SkillAnalyticsDetail() {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
   const { analyzeSkills } = useAppContext();
+  const descriptionDialogId = useId();
+  const descriptionDialogTitleId = useId();
+  const descriptionDialogDescriptionId = useId();
+  const descriptionModalRef = useRef<HTMLDivElement | null>(null);
 
   const [periodDays, setPeriodDays] = useState(() => ReadPeriodFromSearch(window.location.search));
   const [searchTerm] = useState(() => ReadSearchTermFromSearch(window.location.search));
   const [detail, setDetail] = useState<SkillAnalyticsDetailView | null>(null);
   const [selectedSnapshot, setSelectedSnapshot] = useState<SkillSnapshot | null>(null);
   const [viewMode, setViewMode] = useState<"preview" | "diff">("preview");
+  const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const shouldUseImmersiveLayout = Boolean(detail?.hasRecentActivity && selectedSnapshot);
+  const isDiffView = viewMode === "diff";
 
   useEffect(() => {
     if (!name) {
@@ -73,6 +97,38 @@ export function SkillAnalyticsDetail() {
     void loadDetail();
   }, [name, periodDays]);
 
+  useEffect(() => {
+    if (!isDescriptionModalOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    descriptionModalRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsDescriptionModalOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isDescriptionModalOpen]);
+
+  useEffect(() => {
+    document.body.classList.toggle("analytics-detail-diff-mode", shouldUseImmersiveLayout);
+
+    return () => {
+      document.body.classList.remove("analytics-detail-diff-mode");
+    };
+  }, [shouldUseImmersiveLayout]);
+
   async function loadDetail() {
     if (!name) {
       return;
@@ -80,6 +136,7 @@ export function SkillAnalyticsDetail() {
 
     setIsLoading(true);
     setErrorMessage(null);
+    setIsDescriptionModalOpen(false);
 
     try {
       const nextDetail = await analyzeSkills.loadSkillDetail({
@@ -115,9 +172,19 @@ export function SkillAnalyticsDetail() {
     return null;
   }
 
+  const description = detail?.description?.trim() || "Description missing";
+  const hasDescription = Boolean(detail?.description?.trim());
+  const isDescriptionLong = hasDescription && ShouldOpenDescriptionInModal(description);
+  const descriptionPreview = isDescriptionLong ? BuildDescriptionPreview(description) : description;
+  const descriptionNote = !hasDescription
+    ? "No description is currently saved in the local skill file."
+    : isDescriptionLong
+      ? "Preview truncated for readability. Open the full description for the complete text."
+      : "Current metadata from the local skill file.";
+
   return (
-    <div>
-      <div className="page-header">
+    <div className={`analytics-detail-page${shouldUseImmersiveLayout ? " analytics-detail-page-diff" : ""}`}>
+      <div className="page-header analytics-detail-page-header">
         <div>
           <h1>{name} Analytics</h1>
           <p>Read-only activity detail for the selected local skill.</p>
@@ -186,10 +253,24 @@ export function SkillAnalyticsDetail() {
           <div className="analytics-summary-grid analytics-detail-summary-grid">
             <article className="card analytics-summary-card">
               <span className="analytics-summary-label">Description</span>
-              <strong className="analytics-summary-text">
-                {detail.description ?? "Description missing"}
+              <strong
+                className={`analytics-summary-text ${isDescriptionLong ? "analytics-description-preview" : ""}`}
+              >
+                {descriptionPreview}
               </strong>
-              <span className="analytics-summary-note">Current metadata from the local skill file.</span>
+              <span className="analytics-summary-note">{descriptionNote}</span>
+              {isDescriptionLong ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm analytics-description-trigger"
+                  onClick={() => setIsDescriptionModalOpen(true)}
+                  aria-haspopup="dialog"
+                  aria-expanded={isDescriptionModalOpen}
+                  aria-controls={descriptionDialogId}
+                >
+                  View full description
+                </button>
+              ) : null}
             </article>
             <article className="card analytics-summary-card">
               <span className="analytics-summary-label">{detail.filter.label}</span>
@@ -215,7 +296,9 @@ export function SkillAnalyticsDetail() {
           </div>
 
           {detail.hasRecentActivity ? (
-            <div className="history-layout">
+            <div
+              className={`history-layout analytics-detail-history-layout${shouldUseImmersiveLayout ? " history-layout-diff" : ""}`}
+            >
               <div className="history-timeline">
                 <div className="timeline-header">
                   <h3>{detail.timeline.length} change{detail.timeline.length !== 1 ? "s" : ""} in view</h3>
@@ -227,7 +310,6 @@ export function SkillAnalyticsDetail() {
                       className={`timeline-item ${selectedSnapshot?.timestamp === snapshot.timestamp ? "active" : ""}`}
                       onClick={() => {
                         setSelectedSnapshot(snapshot);
-                        setViewMode("preview");
                       }}
                     >
                       <div className="timeline-dot" />
@@ -243,7 +325,7 @@ export function SkillAnalyticsDetail() {
                 </div>
               </div>
 
-              <div className="history-detail">
+              <div className={`history-detail${shouldUseImmersiveLayout ? " history-detail-diff" : ""}`}>
                 {selectedSnapshot ? (
                   <>
                     <div className="detail-toolbar">
@@ -261,18 +343,41 @@ export function SkillAnalyticsDetail() {
                       </button>
                     </div>
 
-                    {viewMode === "diff" ? (
-                      <div className="diff-viewer">
-                        <ReactDiffViewer
-                          oldValue={selectedSnapshot.content}
-                          newValue={detail.currentVersionContent}
-                          splitView={true}
-                          useDarkTheme={true}
-                          compareMethod={DiffMethod.WORDS}
-                          styles={diffStyles}
-                          leftTitle={`Earlier Version (${FormatTimestamp(selectedSnapshot.timestamp)})`}
-                          rightTitle="Current Version"
-                        />
+                    {isDiffView ? (
+                      <div className="analytics-diff-workspace">
+                        <div className="analytics-diff-banner">
+                          <div>
+                            <span className="analytics-diff-banner-label">Comparing archived change</span>
+                            <strong className="analytics-diff-banner-title">
+                              {FormatTimestamp(selectedSnapshot.timestamp)}
+                            </strong>
+                          </div>
+                          <p>
+                            Against the current local version. Scroll inside this workspace to inspect longer lines
+                            without losing the timeline.
+                          </p>
+                        </div>
+
+                        <div className="analytics-diff-scroll">
+                          <div className="diff-viewer">
+                            <ReactDiffViewer
+                              oldValue={selectedSnapshot.content}
+                              newValue={detail.currentVersionContent}
+                              splitView={true}
+                              useDarkTheme={true}
+                              compareMethod={DiffMethod.WORDS}
+                              styles={diffStyles}
+                              leftTitle={`Earlier Version (${FormatTimestamp(selectedSnapshot.timestamp)})`}
+                              rightTitle="Current Version"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : shouldUseImmersiveLayout ? (
+                      <div className="analytics-diff-workspace">
+                        <div className="analytics-diff-scroll">
+                          <pre className="code-block">{selectedSnapshot.content}</pre>
+                        </div>
                       </div>
                     ) : (
                       <pre className="code-block">{selectedSnapshot.content}</pre>
@@ -315,6 +420,36 @@ export function SkillAnalyticsDetail() {
             </section>
           )}
         </>
+      ) : null}
+
+      {detail && hasDescription && isDescriptionLong && isDescriptionModalOpen ? (
+        <div className="modal-overlay" onClick={() => setIsDescriptionModalOpen(false)}>
+          <div
+            id={descriptionDialogId}
+            ref={descriptionModalRef}
+            className="modal analytics-description-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={descriptionDialogTitleId}
+            aria-describedby={descriptionDialogDescriptionId}
+            tabIndex={-1}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3 id={descriptionDialogTitleId}>{name} description</h3>
+            <p id={descriptionDialogDescriptionId} className="analytics-description-modal-copy">
+              {description}
+            </p>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setIsDescriptionModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );
@@ -397,4 +532,18 @@ function FormatRelativeTimestamp(timestamp: string): string {
   }
 
   return `${differenceInDays}d ago`;
+}
+
+function ShouldOpenDescriptionInModal(description: string): boolean {
+  return description.length > DESCRIPTION_PREVIEW_LENGTH;
+}
+
+function BuildDescriptionPreview(description: string): string {
+  const normalizedDescription = description.replace(/\s+/g, " ").trim();
+
+  if (normalizedDescription.length <= DESCRIPTION_PREVIEW_LENGTH) {
+    return normalizedDescription;
+  }
+
+  return `${normalizedDescription.slice(0, DESCRIPTION_PREVIEW_LENGTH).trimEnd()}…`;
 }
