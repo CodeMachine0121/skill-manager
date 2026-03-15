@@ -4,11 +4,11 @@ export function Home() {
   return (
     <div className="hero">
       <h1 className="hero-title">
-        Manage Your<br />Claude Skills
+        Create, Share,<br />and Import Claude Skills
       </h1>
       <p className="hero-subtitle">
-        Create, generate, and manage SKILL.md files for Claude Code.
-        Use AI-powered generation or manual authoring.
+        Build local skills, publish them to a community marketplace, and install shareable versions
+        without leaving your desktop workflow.
       </p>
       <div className="hero-actions">
         <Link to="/create" className="btn btn-accent btn-lg">
@@ -27,8 +27,11 @@ export function Home() {
           </svg>
           AI Generate
         </Link>
-        <Link to="/skills" className="btn btn-ghost btn-lg">
-          Browse Skills
+        <Link to="/marketplace" className="btn btn-ghost btn-lg">
+          Browse Marketplace
+        </Link>
+        <Link to="/marketplace/publish" className="btn btn-ghost btn-lg">
+          Publish Skill
         </Link>
       </div>
 
@@ -57,12 +60,24 @@ export function Home() {
         <div className="card feature-card">
           <div className="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 7h18" />
+              <path d="M6 7v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7" />
+              <path d="M9 12h6" />
+              <path d="M12 9v6" />
+            </svg>
+          </div>
+          <h3>Marketplace Sharing</h3>
+          <p>Publish versioned listings, copy shareable links, and import the latest marketplace releases.</p>
+        </div>
+        <div className="card feature-card">
+          <div className="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
           </div>
           <h3>Full Management</h3>
-          <p>Browse, edit, update, and delete your installed skills with a modern interface.</p>
+          <p>Browse, edit, update, and delete your installed skills while preserving marketplace origins.</p>
         </div>
       </div>
     </div>

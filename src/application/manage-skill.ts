@@ -1,4 +1,4 @@
-import { Skill } from "../domain/skill";
+import type { SkillSummary } from "../domain/skill-summary";
 import { SkillName } from "../domain/skill-name";
 import type { ISkillRepository } from "../domain/ports";
 
@@ -9,14 +9,18 @@ export class ManageSkillUseCase {
     return this.repository.listAll();
   }
 
-  async getSkill(name: string): Promise<Skill> {
+  async listSummaries(): Promise<SkillSummary[]> {
+    return this.repository.listSummaries();
+  }
+
+  async getSkill(name: string) {
     return this.repository.read(new SkillName(name));
   }
 
   async updateSkill(name: string, newContent: string): Promise<void> {
     const skillName = new SkillName(name);
-    const skill = new Skill(skillName, newContent);
-    await this.repository.save(skill);
+    const currentSkill = await this.repository.read(skillName);
+    await this.repository.save(currentSkill.withContent(newContent));
   }
 
   async deleteSkill(name: string): Promise<void> {

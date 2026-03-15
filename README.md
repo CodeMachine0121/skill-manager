@@ -9,6 +9,8 @@ Built with Tauri 2 + React + Rust.
 - **AI-Powered Generation** — Describe what you need and let GitHub Copilot generate complete `SKILL.md` files
 - **Manual Creation** — Write skill content directly with full control
 - **Browse & Manage** — View, edit, refine, and delete installed skills
+- **Marketplace Sharing** — Publish local skills as versioned marketplace listings and copy shareable import links
+- **Marketplace Import** — Browse community listings or paste a share link to install the latest release locally
 - **AI Refinement** — Edit existing skills with AI assistance and review changes in a GitHub-style diff viewer
 - **Local Storage** — Skills are saved to `~/.claude/skills/` for use with Claude Code
 
@@ -68,9 +70,12 @@ src/                            # Frontend (React + TypeScript)
 ├── application/                # Use cases
 │   ├── manage-skill.ts
 │   ├── generate-skill.ts
-│   └── install-skill.ts
+│   ├── install-skill.ts
+│   ├── publish-marketplace-skill.ts
+│   └── browse-marketplace.ts
 ├── infrastructure/             # Tauri bridge & Copilot integration
 │   ├── tauri-skill-repository.ts
+│   ├── tauri-marketplace-repository.ts
 │   ├── copilot-skill-generator.ts
 │   └── context.ts
 ├── pages/                      # Views
@@ -78,7 +83,10 @@ src/                            # Frontend (React + TypeScript)
 │   ├── SkillList.tsx
 │   ├── CreateSkill.tsx
 │   ├── GenerateSkill.tsx
-│   └── SkillDetail.tsx
+│   ├── SkillDetail.tsx
+│   ├── MarketplaceBrowser.tsx
+│   ├── MarketplacePublish.tsx
+│   └── MarketplaceListingDetail.tsx
 └── components/                 # Reusable UI
     ├── Layout.tsx
     ├── SkillIcon.tsx
@@ -121,6 +129,8 @@ Step-by-step processes.
 ## Coding Standards
 Rules and constraints.
 ```
+
+Marketplace listings are persisted locally in `~/.skill-manager/marketplace/listings.json`, and imported skills keep their marketplace origin metadata beside each skill directory.
 
 ## License
 

@@ -748,3 +748,234 @@ a:hover { color: var(--accent-purple); }
   height: 1px;
   background: var(--border-subtle);
 }
+
+.skill-card-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.skill-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.skill-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.skill-card-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.marketplace-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.marketplace-card h2 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.marketplace-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.marketplace-meta {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.marketplace-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.marketplace-link-panel {
+  margin-bottom: 1.5rem;
+}
+
+.marketplace-link-form {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.marketplace-link-field {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.tag-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.14);
+  color: #c4b5fd;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.marketplace-empty-state {
+  margin-top: 1.5rem;
+}
+
+.marketplace-detail-layout,
+.marketplace-publish-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.marketplace-detail-main,
+.marketplace-detail-sidebar,
+.marketplace-publish-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.marketplace-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.marketplace-release-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.marketplace-release-item {
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid var(--border-subtle);
+}
+
+.marketplace-release-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.marketplace-share-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.marketplace-share-block-success {
+  margin-top: 1.25rem;
+}
+
+.marketplace-share-label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.marketplace-share-link {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.marketplace-publish-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.marketplace-checklist {
+  list-style: disc;
+  padding-left: 1.25rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.marketplace-origin-card {
+  margin-bottom: 1.5rem;
+}
+
+.marketplace-origin-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.marketplace-origin-header h3,
+.marketplace-detail-sidebar h3,
+.marketplace-publish-sidebar h3 {
+  font-family: var(--font-heading);
+  margin-top: 0.65rem;
+  margin-bottom: 0.35rem;
+}
+
+.marketplace-origin-header p,
+.marketplace-card p,
+.marketplace-detail-sidebar p,
+.marketplace-publish-sidebar p {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .marketplace-link-form,
+  .marketplace-origin-header,
+  .marketplace-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .marketplace-detail-layout,
+  .marketplace-publish-layout,
+  .marketplace-publish-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .marketplace-grid {
+    grid-template-columns: 1fr;
+  }
+}

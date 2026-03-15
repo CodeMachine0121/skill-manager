@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import ReactDiffViewer, { DiffMethod } from "react-diff-viewer-continued";
-import { useAppContext } from "../infrastructure/context";
-import { Toast } from "../components/Toast";
 import { PixelCat } from "../components/PixelCat";
+import { Toast } from "../components/Toast";
+import type { MarketplaceSkillOrigin } from "../domain/skill-metadata";
+import { useAppContext } from "../infrastructure/context";
 
 const diffStyles = {
   variables: {
@@ -40,6 +41,7 @@ export function SkillDetail() {
   const [content, setContent] = useState("");
   const [editContent, setEditContent] = useState("");
   const [originalContent, setOriginalContent] = useState("");
+  const [marketplaceOrigin, setMarketplaceOrigin] = useState<MarketplaceSkillOrigin | undefined>();
   const [aiEditInstruction, setAiEditInstruction] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -50,14 +52,17 @@ export function SkillDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    if (name) loadSkill();
+    if (name) {
+      void loadSkill(name);
+    }
   }, [name]);
 
-  async function loadSkill() {
+  async function loadSkill(skillName: string) {
     try {
-      const skill = await manageSkill.getSkill(name!);
+      const skill = await manageSkill.getSkill(skillName);
       setContent(skill.content);
       setOriginalContent(skill.content);
+      setMarketplaceOrigin(skill.metadata.marketplace);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to load skill");
     }
@@ -86,8 +91,12 @@ export function SkillDetail() {
   }
 
   async function handleSave() {
+    if (!name) {
+      return;
+    }
+
     try {
-      await manageSkill.updateSkill(name!, editContent);
+      await manageSkill.updateSkill(name, editContent);
       setContent(editContent);
       setOriginalContent(editContent);
       setIsEditing(false);
@@ -99,7 +108,9 @@ export function SkillDetail() {
   }
 
   async function handleAiEdit() {
-    if (!aiEditInstruction.trim()) return;
+    if (!aiEditInstruction.trim()) {
+      return;
+    }
 
     setIsAiProcessing(true);
     setErrorMessage(null);
@@ -122,8 +133,12 @@ export function SkillDetail() {
   }
 
   async function acceptDiffAndSave() {
+    if (!name) {
+      return;
+    }
+
     try {
-      await manageSkill.updateSkill(name!, editContent);
+      await manageSkill.updateSkill(name, editContent);
       setContent(editContent);
       setOriginalContent(editContent);
       setShowDiffView(false);
@@ -140,8 +155,12 @@ export function SkillDetail() {
   }
 
   async function handleDelete() {
+    if (!name) {
+      return;
+    }
+
     try {
-      await manageSkill.deleteSkill(name!);
+      await manageSkill.deleteSkill(name);
       navigate("/skills");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to delete skill");
@@ -159,7 +178,23 @@ export function SkillDetail() {
     }
   }
 
-  if (!name) return null;
+  async function handleCopyMarketplaceLink() {
+    if (!marketplaceOrigin) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(marketplaceOrigin.shareLink);
+      setSuccessMessage("Marketplace link copied to clipboard.");
+      setTimeout(() => setSuccessMessage(null), 2000);
+    } catch {
+      setErrorMessage("Failed to copy marketplace link");
+    }
+  }
+
+  if (!name) {
+    return null;
+  }
 
   return (
     <div>
@@ -173,9 +208,38 @@ export function SkillDetail() {
       <div className="page-header">
         <div>
           <h1>{name}</h1>
-          <p>Skill detail and editor</p>
+          <p>
+            {marketplaceOrigin
+              ? `Imported from marketplace listing ${marketplaceOrigin.listingId}`
+              : "Skill detail and editor"}
+          </p>
         </div>
       </div>
+
+      {marketplaceOrigin && (
+        <div className="card marketplace-origin-card">
+          <div className="marketplace-origin-header">
+            <div>
+              <span className="badge badge-info">Marketplace import</span>
+              <h3>{marketplaceOrigin.listingId}</h3>
+              <p>
+                Version {marketplaceOrigin.version} · Published by @{marketplaceOrigin.publisherId}
+              </p>
+            </div>
+            <div className="marketplace-card-actions">
+              <button className="btn btn-ghost" onClick={() => void handleCopyMarketplaceLink()}>
+                Copy Link
+              </button>
+              <button
+                className="btn btn-accent"
+                onClick={() => navigate(`/marketplace/listings/${marketplaceOrigin.listingId}`)}
+              >
+                View Listing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isAiProcessing ? (
         <PixelCat text="AI is refining your skill..." />
@@ -201,7 +265,7 @@ export function SkillDetail() {
             <button className="btn btn-accent" onClick={() => { setShowDiffView(false); setIsEditing(true); }}>
               Edit Further
             </button>
-            <button className="btn btn-gradient" onClick={acceptDiffAndSave}>
+            <button className="btn btn-gradient" onClick={() => void acceptDiffAndSave()}>
               Accept &amp; Save
             </button>
           </div>
@@ -214,12 +278,12 @@ export function SkillDetail() {
               id="edit-content"
               className="form-textarea code-editor"
               value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
+              onChange={(event) => setEditContent(event.target.value)}
               rows={20}
             />
           </div>
           <div style={{ display: "flex", gap: "0.75rem" }}>
-            <button className="btn btn-accent" onClick={handleSave}>
+            <button className="btn btn-accent" onClick={() => void handleSave()}>
               Save Changes
             </button>
             <button className="btn btn-ghost" onClick={cancelEdit}>Cancel</button>
@@ -233,7 +297,7 @@ export function SkillDetail() {
               id="ai-instruction"
               className="form-textarea"
               value={aiEditInstruction}
-              onChange={(e) => setAiEditInstruction(e.target.value)}
+              onChange={(event) => setAiEditInstruction(event.target.value)}
               rows={4}
               placeholder="Describe what changes you want AI to make..."
             />
@@ -241,7 +305,7 @@ export function SkillDetail() {
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <button
               className="btn btn-gradient"
-              onClick={handleAiEdit}
+              onClick={() => void handleAiEdit()}
               disabled={!aiEditInstruction.trim()}
             >
               Apply AI Edit
@@ -267,7 +331,13 @@ export function SkillDetail() {
               </svg>
               AI Edit
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={handleCopy}>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => navigate(`/marketplace/publish?skill=${encodeURIComponent(name)}`)}
+            >
+              Publish
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => void handleCopy()}>
               Copy
             </button>
             <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/history/${name}`)}>
@@ -287,7 +357,7 @@ export function SkillDetail() {
 
       {showDeleteConfirm && (
         <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal" onClick={(event) => event.stopPropagation()}>
             <h3>Delete Skill</h3>
             <p>
               Are you sure you want to delete <strong>{name}</strong>? This action cannot be undone.
@@ -296,7 +366,7 @@ export function SkillDetail() {
               <button className="btn btn-ghost" onClick={() => setShowDeleteConfirm(false)}>
                 Cancel
               </button>
-              <button className="btn btn-danger" onClick={handleDelete}>
+              <button className="btn btn-danger" onClick={() => void handleDelete()}>
                 Delete
               </button>
             </div>

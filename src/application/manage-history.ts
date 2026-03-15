@@ -1,3 +1,4 @@
+import { Skill } from "../domain/skill";
 import { SkillName } from "../domain/skill-name";
 import { SkillSnapshot } from "../domain/skill-snapshot";
 import type { ISkillHistoryRepository, ISkillRepository } from "../domain/ports";
@@ -19,8 +20,19 @@ export class ManageHistoryUseCase {
   async restoreSnapshot(name: string, timestamp: string): Promise<void> {
     const snapshot = await this.historyRepository.getSnapshot(new SkillName(name), timestamp);
     const skillName = new SkillName(name);
-    const { Skill } = await import("../domain/skill");
-    const skill = new Skill(skillName, snapshot.content);
-    await this.skillRepository.save(skill);
+    const currentSkill = await ReadCurrentSkill(this.skillRepository, skillName);
+    const restoredSkill = new Skill(skillName, snapshot.content, currentSkill?.metadata ?? {});
+    await this.skillRepository.save(restoredSkill);
+  }
+}
+
+async function ReadCurrentSkill(
+  repository: ISkillRepository,
+  skillName: SkillName,
+): Promise<Skill | null> {
+  try {
+    return await repository.read(skillName);
+  } catch {
+    return null;
   }
 }

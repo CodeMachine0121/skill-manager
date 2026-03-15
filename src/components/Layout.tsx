@@ -26,6 +26,19 @@ export function Layout() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/marketplace" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 7h18" />
+                <path d="M5 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M19 7V5a2 2 0 0 0-2-2h-2" />
+                <path d="M6 7v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7" />
+                <path d="M9 12h6" />
+                <path d="M12 9v6" />
+              </svg>
+              Marketplace
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/create" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9" />
