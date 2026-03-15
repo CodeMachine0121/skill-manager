@@ -26,6 +26,15 @@ export function Layout() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/analytics" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="m7 14 3-3 3 2 5-6" />
+              </svg>
+              Analytics
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/create" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9" />
